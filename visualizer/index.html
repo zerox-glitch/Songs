@@ -4,18 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#11162c">
-  <meta name="description" content="An audio-reactive visualizer and lyric player for Keep the Fire Burning.">
+  <meta name="description" content="An audio-reactive cinematic lyric experience for Keep the Fire Burning.">
   <title>Keep the Fire Burning — Visualizer</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="player">
+    <div id="photo-a" class="photo visible" aria-hidden="true"></div>
+    <div id="photo-b" class="photo" aria-hidden="true"></div>
     <canvas id="visual" aria-hidden="true"></canvas>
     <div class="veil"></div>
     <header class="brand"><span class="brand-mark">✦</span><span>AN INTERCONTINENTAL LOVE SONG</span></header>
     <section class="center">
       <p class="eyebrow">LAHORE AT DAWN · YOUR SHORE AT MIDNIGHT</p>
-      <h1>Keep the Fire<br><em>Burning</em></h1>
+      <h1>Keep the Fire <em>Burning</em></h1>
       <p class="subline">A quiet kind of love that never fades.</p>
       <div class="lyric-wrap" aria-live="polite">
         <p id="section" class="section">PRESS PLAY TO BEGIN</p>
@@ -31,7 +33,7 @@
       </div>
       <audio id="audio" preload="metadata" src="../Keep%20the%20Fire%20Burning%20(Remastered).mp3"></audio>
     </section>
-    <footer><span>KEEP THE FIRE BURNING</span><span>VISUALIZER · 01</span></footer>
+    <footer><span>KEEP THE FIRE BURNING</span><span>VISUAL STORY · 01</span></footer>
   </main>
   <script src="visualizer.js"></script>
 </body>

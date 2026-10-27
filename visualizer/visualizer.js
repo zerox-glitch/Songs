@@ -1,7 +1,7 @@
 (() => {
   const audio = document.querySelector('#audio');
   const canvas = document.querySelector('#visual');
-  const gl = canvas.getContext('webgl', {alpha: false, antialias: true});
+  const gl = canvas.getContext('webgl', {alpha: true, antialias: true});
   const playButton = document.querySelector('#play');
   const playIcon = document.querySelector('#play-icon');
   const muteButton = document.querySelector('#mute');
@@ -31,8 +31,24 @@
     [204,'FINAL CHORUS','I carry every promise that we ever made!'],[210.5,'FINAL CHORUS','A quiet kind of love that never fades!'],
     [217,'FINAL CHORUS','Aaaahhh huh haaaa!'],[220.5,'FINAL CHORUS','Laaa la la laaaa!'],[222.5,'OUTRO','Come back home...']
   ];
-  let activeIndex = -1;
+  const sceneTimeline = [[0,'dawn-lahore.jpg'],[43,'shoreline-dusk.jpg'],[88,'midnight-window.jpg'],[122,'dawn-lahore.jpg'],[155,'shoreline-dusk.jpg'],[173,'midnight-window.jpg'],[190,'dawn-lahore.jpg']];
+  const photoA = document.querySelector('#photo-a');
+  const photoB = document.querySelector('#photo-b');
+  let currentPhoto = photoA, nextPhoto = photoB, activeScene = 0;
+  photoA.style.backgroundImage="url('../assets/dawn-lahore.jpg')";
+  const photoCache = sceneTimeline.map(([,name]) => { const image=new Image(); image.src=`../assets/${name}`; return image; });
+  function updateScene() {
+    const t=audio.currentTime;
+    let scene=0; for(let i=0;i<sceneTimeline.length;i++)if(t>=sceneTimeline[i][0])scene=i;else break;
+    if(scene===activeScene)return;
+    activeScene=scene;
+    nextPhoto.style.backgroundImage=`url('../assets/${sceneTimeline[scene][1]}')`;
+    nextPhoto.classList.add('visible');
+    currentPhoto.classList.remove('visible');
+    [currentPhoto,nextPhoto]=[nextPhoto,currentPhoto];
+  }
   function setLyric() {
+    updateScene();
     const t = audio.currentTime;
     let index = -1;
     for (let i = 0; i < lyrics.length; i++) if (t >= lyrics[i][0]) index = i; else break;
@@ -54,21 +70,18 @@
   if (!gl) { canvas.style.display='none'; return; }
   const vertex = `attribute vec2 p; void main(){gl_Position=vec4(p,0.,1.);}`;
   const fragment = `precision highp float; uniform vec2 resolution; uniform float time; uniform float energy;
-    float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-    void main(){vec2 uv=gl_FragCoord.xy/resolution; vec2 p=(gl_FragCoord.xy-.5*resolution)/resolution.y;
-    float t=time*.13; vec3 warm=vec3(.72,.33,.22), cool=vec3(.075,.12,.29);
-    float blend=smoothstep(-.58,.60,p.x); vec3 col=mix(warm,cool,blend);
-    float sun=exp(-length((p-vec2(-.38,.05))*vec2(1.0,1.3))*3.4); col+=sun*vec3(.5,.23,.10);
-    float halo=exp(-length(p-vec2(.18,.02))*2.1); col+=halo*vec3(.08,.12,.27);
-    float r=length(p-vec2(.0,-.06)); float pulse=.34+.012*sin(time*1.2)+energy*.035;
-    float ring=exp(-abs(r-pulse)*100.); col+=ring*vec3(.32,.25,.17)*.25;
-    float ring2=exp(-abs(r-(pulse+.10))*68.); col+=ring2*vec3(.23,.30,.44)*.16;
-    float horizon=exp(-abs(p.y+.27+sin(p.x*2.7+t)*.012)*90.); col+=horizon*vec3(.38,.24,.16)*.13;
-    float grain=hash(floor(gl_FragCoord.xy*.45)+floor(time*4.)); col+=(grain-.5)*.018;
-    float vignette=1.0-smoothstep(.18,1.15,length(p*vec2(.78,1.0))); col*=.58+.42*vignette;
-    gl_FragColor=vec4(col,1.);}`;
+    void main(){vec2 p=(gl_FragCoord.xy-.5*resolution)/resolution.y;
+    float mask=smoothstep(-.72,-.56,p.x)*(1.0-smoothstep(.56,.72,p.x));
+    float base=-.405+sin(p.x*12.0-time*1.7)*(.012+energy*.055);
+    float distanceFromWave=abs(p.y-base);
+    float trace=exp(-distanceFromWave*230.0)*(.10+energy*.42);
+    float glow=exp(-distanceFromWave*34.0)*(.025+energy*.10);
+    float alpha=clamp((trace+glow)*mask,0.0,.38);
+    vec3 warm=vec3(.98,.76,.53),cool=vec3(.74,.82,1.0);
+    vec3 ink=mix(warm,cool,smoothstep(-.48,.48,p.x));
+    gl_FragColor=vec4(ink,alpha);}`;
   function shader(type, src) {const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(s));return s;}
-  const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vertex));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fragment));gl.linkProgram(program);gl.useProgram(program);
+  const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vertex));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fragment));gl.linkProgram(program);gl.useProgram(program);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(0,0,0,0);
   const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
   const loc=gl.getAttribLocation(program,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
   const resLoc=gl.getUniformLocation(program,'resolution'),timeLoc=gl.getUniformLocation(program,'time'),energyLoc=gl.getUniformLocation(program,'energy');
@@ -76,6 +89,6 @@
   function resize(){const ratio=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.floor(innerWidth*ratio);canvas.height=Math.floor(innerHeight*ratio);gl.viewport(0,0,canvas.width,canvas.height);gl.uniform2f(resLoc,canvas.width,canvas.height);}
   function connectAudio(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;data=new Uint8Array(analyser.frequencyBinCount);const source=audioCtx.createMediaElementSource(audio);source.connect(analyser);analyser.connect(audioCtx.destination);}if(audioCtx.state==='suspended')audioCtx.resume();}
   audio.addEventListener('play',connectAudio);
-  function draw(ms){let e=0;if(analyser){analyser.getByteFrequencyData(data);for(let i=0;i<data.length;i++)e+=data[i];e/=data.length*255;}gl.uniform1f(timeLoc,ms/1000);gl.uniform1f(energyLoc,e);gl.drawArrays(gl.TRIANGLES,0,6);requestAnimationFrame(draw);}
+  function draw(ms){let e=0;if(analyser){analyser.getByteFrequencyData(data);for(let i=0;i<data.length;i++)e+=data[i];e/=data.length*255;}gl.uniform1f(timeLoc,ms/1000);gl.uniform1f(energyLoc,e);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,6);requestAnimationFrame(draw);}
   window.addEventListener('resize',resize);resize();requestAnimationFrame(draw);
 })();

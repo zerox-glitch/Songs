@@ -4,13 +4,14 @@ A YouTube-ready lyric video and a lightweight, interactive audio-reactive visual
 
 ## Deliverables
 
-- **`Keep the Fire Burning - Lyric Visualizer.mp4`** — 1280×720 H.264/AAC lyric video, ready to upload to YouTube.
+- **`Keep the Fire Burning - Lyric Visualizer.mp4`** — 1280×720, 24 fps H.264/AAC lyric video with cinematic photo scenes and oversized centered captions, ready to upload to YouTube.
 - **`YouTube Thumbnail.jpg`** — 1280×720 still from the video for the YouTube thumbnail.
 - **`YouTube upload info.txt`** — suggested title, description, hashtags, and timing note.
 - **`lyrics/Keep the Fire Burning.txt`** — clean lyrics transcript.
 - **`lyrics/Keep the Fire Burning.srt`** — subtitles used as the video's on-screen lyric cues.
 - **`lyrics/Keep the Fire Burning.lrc`** — timestamped lyrics for compatible music players.
-- **`visualizer/`** — self-contained WebGL visualizer with playback controls, audio-reactive background, and lyrics.
+- **`visualizer/`** — self-contained WebGL visualizer with playback controls, cinematic photo transitions, and large centered lyrics.
+- **`assets/`** — cinematic stills plus locally bundled Cormorant Garamond display fonts (SIL Open Font License).
 - **`scripts/render_lyric_video.py`** — reproducible video renderer.
 
 ## Preview the interactive visualizer
