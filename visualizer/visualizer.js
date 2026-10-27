@@ -10,27 +10,17 @@
   const muteButton = document.querySelector('#mute');
   const seek = document.querySelector('#seek');
 
-  const lyrics = [
-    [13,18,'The morning light is breaking in Lahore,'],[18,23,'While midnight settles on your distant shore.'],
-    [23,28,"I know you're pulling down the window blinds,"],[28,33,'And leaving all the heavy day behind.'],
-    [33,37.5,'I trace the little pixels on the screen,'],[37.5,42,"The most beautiful face I've ever seen."],
-    [44,49,'A half a world away, a different sky...'],[49,54,'But I can hear the softness in your sigh...'],
-    [56,61.5,'I will keep the fire burning till you come back home!'],[61.5,67,'You never have to walk this heavy road alone!'],
-    [67,72.5,'I carry every promise that we ever made!'],[72.5,78,'A quiet kind of love that never fades!'],
-    [78,82,'Aaaahhh huh haaaa!'],[82,86,'Laaa la la laaaa!'],
-    [91,96,'I leave the phone right next to me in bed,'],[96,101,'Just so I can hear you breathing deep.'],
-    [101,106,'It closes up the thousands of miles,'],[106,111,"To know I'm right beside you when you sleep."],
-    [111,116,'We share the day and pass the sun along,'],[116,121,'You are the only place where I belong.'],
-    [123,128,'A half a world away, a different sky...'],[128,133,'But I can hear the softness in your sigh...'],
-    [135,140.5,'I will keep the fire burning till you come back home!'],[140.5,146,'You never have to walk this heavy road alone!'],
-    [146,151.5,'I carry every promise that we ever made!'],[151.5,157,'A quiet kind of love that never fades!'],
-    [157,161,'Aaaahhh huh haaaa!'],[161,165,'Laaa la la laaaa!'],[165,169,'Aaaahhh huh haaaa!'],
-    [174,181,"I don't need a crowded room or fancy things..."],[181,188,'I only need the peace your voice brings...'],
-    [191,197.5,'I will keep the fire burning till you come back home!'],[197.5,204,'You never have to walk this heavy road alone!'],
-    [204,210.5,'I carry every promise that we ever made!'],[210.5,217,'A quiet kind of love that never fades!'],
-    [217,220.5,'Aaaahhh huh haaaa!'],[220.5,222.5,'Laaa la la laaaa!'],[222.5,224.832,'Come back home...']
-  ];
-  const sceneTimeline=[[0,'title-cosmic.jpg'],[12,'lyric-lahore-panorama.jpg'],[43,'celestial-ocean.jpg'],[55,'chorus-golden-infinity.jpg'],[87,'moonlit-garden.jpg'],[122,'celestial-ocean.jpg'],[135,'chorus-golden-infinity.jpg'],[170,'celestial-ocean.jpg'],[190,'chorus-golden-infinity.jpg'],[217,'celestial-ocean.jpg']];
+  let lyrics = [];
+  let sceneTimeline = [[0,'title-cosmic.jpg']];
+  fetch('../lyrics/timeline.json')
+    .then(response => { if (!response.ok) throw new Error('Could not load visual timeline'); return response.json(); })
+    .then(timeline => {
+      lyrics = timeline.lyrics.map(({start,end,text}) => [start,end,text]);
+      sceneTimeline = timeline.scenes.map(({start,image}) => [start,image]);
+      updateScene();
+      updateLyrics();
+    })
+    .catch(error => console.error(error));
   const photoA=document.querySelector('#photo-a'),photoB=document.querySelector('#photo-b');
   let currentPhoto=photoA,nextPhoto=photoB,activeScene=0,activeLyric=-2;
   photoA.style.backgroundImage="url('../assets/title-cosmic.jpg')";

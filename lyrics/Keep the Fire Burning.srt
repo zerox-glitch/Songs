@@ -1,25 +1,25 @@
 1
-00:00:13,000 --> 00:00:18,000
+00:00:12,000 --> 00:00:17,600
 The morning light is breaking in Lahore,
 
 2
-00:00:18,000 --> 00:00:23,000
+00:00:18,780 --> 00:00:21,250
 While midnight settles on your distant shore.
 
 3
-00:00:23,000 --> 00:00:28,000
+00:00:21,260 --> 00:00:25,570
 I know you're pulling down the window blinds,
 
 4
-00:00:28,000 --> 00:00:33,000
+00:00:25,580 --> 00:00:29,300
 And leaving all the heavy day behind.
 
 5
-00:00:33,000 --> 00:00:37,500
+00:00:29,310 --> 00:00:32,370
 I trace the little pixels on the screen,
 
 6
-00:00:37,500 --> 00:00:42,000
+00:00:33,450 --> 00:00:38,190
 The most beautiful face I've ever seen.
 
 7

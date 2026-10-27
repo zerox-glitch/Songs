@@ -14,12 +14,12 @@ Style: Title,Allura,450,&H0038DFFF,&H00A1D7F4,&HAA100704,&H00000000,0,0,0,0,100,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 1,0:00:00.00,0:00:12.00,Title,,0,0,0,,{\an5\move(1920,1140,1920,1040,0,2600)\blur2.5\fad(1300,1900)\t(0,1400,\blur0\fscx105\fscy105)}Keep the Fire Burning
-Dialogue: 0,0:00:13.00,0:00:18.00,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\fnAllura\fs450\1c&H0038DFFF&\bord2\shad8}The morning light\N{\rLyrics\fs360}is breaking in Lahore,
-Dialogue: 0,0:00:18.00,0:00:23.00,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs320}While midnight settles\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}on your distant shore.
-Dialogue: 0,0:00:23.00,0:00:28.00,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs264}I know you're pulling down\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}the window blinds,
-Dialogue: 0,0:00:28.00,0:00:33.00,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs360}And leaving all the\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}heavy day behind.
-Dialogue: 0,0:00:33.00,0:00:37.50,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs360}I trace the little\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}pixels on the screen,
-Dialogue: 0,0:00:37.50,0:00:42.00,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs360}The most beautiful\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}face I've ever seen.
+Dialogue: 0,0:00:12.00,0:00:17.60,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\fnAllura\fs450\1c&H0038DFFF&\bord2\shad8}The morning light\N{\rLyrics\fs360}is breaking in Lahore,
+Dialogue: 0,0:00:18.78,0:00:21.25,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs320}While midnight settles\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}on your distant shore.
+Dialogue: 0,0:00:21.26,0:00:25.57,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs264}I know you're pulling down\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}the window blinds,
+Dialogue: 0,0:00:25.58,0:00:29.30,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs360}And leaving all the\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}heavy day behind.
+Dialogue: 0,0:00:29.31,0:00:32.37,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs360}I trace the little\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}pixels on the screen,
+Dialogue: 0,0:00:33.45,0:00:38.19,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs360}The most beautiful\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}face I've ever seen.
 Dialogue: 0,0:00:44.00,0:00:49.00,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs352}A half a world away,\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}a different sky...
 Dialogue: 0,0:00:49.00,0:00:54.00,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs360}But I can hear the\N{\fnAllura\fs350\1c&H0038DFFF&\bord2\shad8}softness in your sigh...
 Dialogue: 0,0:00:56.00,0:01:01.50,Lyrics,,0,0,0,,{\an5\pos(1920,1080)\blur2.0\bord5\shad8\fad(420,420)\t(0,400,\blur0.2)}{\rLyrics\fs194}I WILL KEEP THE FIRE BURNING\N{\fnAllura\fs212\1c&H0038DFFF&\bord2\shad8}TILL YOU COME BACK HOME!

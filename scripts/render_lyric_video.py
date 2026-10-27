@@ -3,6 +3,7 @@
 Requires Pillow, NumPy, and imageio-ffmpeg. The uploaded MP3 remains the audio source.
 """
 from __future__ import annotations
+import json
 import math
 import subprocess
 import tempfile
@@ -16,65 +17,15 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIO = ROOT / "Keep the Fire Burning (Remastered).mp3"
 OUTPUT = ROOT / "Keep the Fire Burning - Lyric Visualizer.mp4"
 ASS_PATH = ROOT / "lyrics" / "lyrics.ass"
+TIMELINE_PATH = ROOT / "lyrics" / "timeline.json"
 WIDTH, HEIGHT, FPS = 1280, 720, 30
 OUT_WIDTH, OUT_HEIGHT, OUT_FPS = 3840, 2160, 30
-DURATION = 224.832
+TIMELINE = json.loads(TIMELINE_PATH.read_text(encoding="utf-8"))
+DURATION = float(TIMELINE["duration"])
+LINES = [(float(item["start"]), float(item["end"]), item["text"]) for item in TIMELINE["lyrics"]]
 
-# Phrase-level cues. Lyrics are exact; these are not presented as forced-aligned word times.
-LINES = [
-    (13.0, 18.0, "The morning light is breaking in Lahore,"),
-    (18.0, 23.0, "While midnight settles on your distant shore."),
-    (23.0, 28.0, "I know you're pulling down the window blinds,"),
-    (28.0, 33.0, "And leaving all the heavy day behind."),
-    (33.0, 37.5, "I trace the little pixels on the screen,"),
-    (37.5, 42.0, "The most beautiful face I've ever seen."),
-    (44.0, 49.0, "A half a world away, a different sky..."),
-    (49.0, 54.0, "But I can hear the softness in your sigh..."),
-    (56.0, 61.5, "I will keep the fire burning till you come back home!"),
-    (61.5, 67.0, "You never have to walk this heavy road alone!"),
-    (67.0, 72.5, "I carry every promise that we ever made!"),
-    (72.5, 78.0, "A quiet kind of love that never fades!"),
-    (78.0, 82.0, "Aaaahhh huh haaaa!"),
-    (82.0, 86.0, "Laaa la la laaaa!"),
-    (91.0, 96.0, "I leave the phone right next to me in bed,"),
-    (96.0, 101.0, "Just so I can hear you breathing deep."),
-    (101.0, 106.0, "It closes up the thousands of miles,"),
-    (106.0, 111.0, "To know I'm right beside you when you sleep."),
-    (111.0, 116.0, "We share the day and pass the sun along,"),
-    (116.0, 121.0, "You are the only place where I belong."),
-    (123.0, 128.0, "A half a world away, a different sky..."),
-    (128.0, 133.0, "But I can hear the softness in your sigh..."),
-    (135.0, 140.5, "I will keep the fire burning till you come back home!"),
-    (140.5, 146.0, "You never have to walk this heavy road alone!"),
-    (146.0, 151.5, "I carry every promise that we ever made!"),
-    (151.5, 157.0, "A quiet kind of love that never fades!"),
-    (157.0, 161.0, "Aaaahhh huh haaaa!"),
-    (161.0, 165.0, "Laaa la la laaaa!"),
-    (165.0, 169.0, "Aaaahhh huh haaaa!"),
-    (174.0, 181.0, "I don't need a crowded room or fancy things..."),
-    (181.0, 188.0, "I only need the peace your voice brings..."),
-    (191.0, 197.5, "I will keep the fire burning till you come back home!"),
-    (197.5, 204.0, "You never have to walk this heavy road alone!"),
-    (204.0, 210.5, "I carry every promise that we ever made!"),
-    (210.5, 217.0, "A quiet kind of love that never fades!"),
-    (217.0, 220.5, "Aaaahhh huh haaaa!"),
-    (220.5, 222.5, "Laaa la la laaaa!"),
-    (222.5, 224.832, "Come back home..."),
-]
-
-# No people or silhouettes; scenes follow the broad musical arc.
-SCENES = [
-    (0.0, "title-cosmic.jpg", "title"),
-    (12.0, "lyric-lahore-panorama.jpg", "verse"),
-    (43.0, "celestial-ocean.jpg", "pre"),
-    (55.0, "chorus-golden-infinity.jpg", "chorus"),
-    (87.0, "moonlit-garden.jpg", "verse2"),
-    (122.0, "celestial-ocean.jpg", "pre"),
-    (135.0, "chorus-golden-infinity.jpg", "chorus"),
-    (170.0, "celestial-ocean.jpg", "bridge"),
-    (190.0, "chorus-golden-infinity.jpg", "final"),
-    (217.0, "celestial-ocean.jpg", "outro"),
-]
+# The shared JSON timeline keeps scene cuts identical in the exported film and web player.
+SCENES = [(float(item["start"]), item["image"], item["mode"]) for item in TIMELINE["scenes"]]
 FONT_SERIF = ROOT / "assets/fonts/CormorantGaramond-SemiBold.ttf"
 FONT_SCRIPT = ROOT / "assets/fonts/Allura-Regular.ttf"
 # Each row stays verbatim, while one emotional phrase is set in gold calligraphy.
@@ -169,7 +120,8 @@ def write_subtitles() -> None:
         # The title is the only opening text; it gracefully gathers and dissolves.
         f"Dialogue: 1,{ass_time(0)},{ass_time(12)},Title,,0,0,0,,{{\\an5\\move(1920,1140,1920,1040,0,2600)\\blur2.5\\fad(1300,1900)\\t(0,1400,\\blur0\\fscx105\\fscy105)}}Keep the Fire Burning",
     ]
-    for start, end, text in LINES:
+    for index, (start, end, text) in enumerate(LINES):
+        first_lyric = index == 0
         chorus = any(a <= start < b for a,b in ((56,87),(135,170),(191,222.5)))
         bridge = 174 <= start < 190
         if text in VOCALISES:
@@ -177,13 +129,13 @@ def write_subtitles() -> None:
             escaped = f"{{\\fnAllura\\fs{size}\\1c&H0038DFFF&\\bord2\\shad8}}{text}"
         else:
             plain, script = EMPHASIS[text]
-            if start != 13.0 and chorus:
+            if not first_lyric and chorus:
                 plain, script = plain.upper(), script.upper()
             normal_start = 330 if chorus else (300 if bridge else 360)
             script_start = 340 if chorus else (320 if bridge else 350)
             normal_size = font_size_to_fit(plain, FONT_SERIF, normal_start, 2860)
-            script_size = 450 if start == 13.0 else font_size_to_fit(script, FONT_SCRIPT, script_start, 2860)
-            if start == 13.0:
+            script_size = 450 if first_lyric else font_size_to_fit(script, FONT_SCRIPT, script_start, 2860)
+            if first_lyric:
                 escaped = (f"{{\\fnAllura\\fs{script_size}\\1c&H0038DFFF&\\bord2\\shad8}}{plain}"
                            f"\\N{{\\rLyrics\\fs{normal_size}}}{script}")
             else:
@@ -323,7 +275,7 @@ def main() -> None:
                                  outline=(239,191,121,alpha),width=2)
 
             # The chorus infinity breathes with measured energy; positioned above lyrics for clean readability.
-            if mode in ("chorus","final"):
+            if mode in ("chorus","chorus_alt","final"):
                 energy=min(1,.28*low+.45*mid+.27*level)
                 rx,ry=365+45*energy,92+18*energy;loop=[]
                 for j in range(720):
