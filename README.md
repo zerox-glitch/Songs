@@ -1,32 +1,33 @@
 # Keep the Fire Burning
 
-A YouTube-ready lyric video and a lightweight, interactive audio-reactive visualizer for the uploaded song.
+A cinematic lyric film, a matching interactive visualizer, and upload assets for the supplied song.
 
 ## Deliverables
 
-- **`Keep the Fire Burning - Lyric Visualizer.mp4`** — 1280×720, 24 fps H.264/AAC lyric video with cinematic photo scenes and oversized centered captions, ready to upload to YouTube.
-- **`YouTube Thumbnail.jpg`** — 1280×720 still from the video for the YouTube thumbnail.
-- **`YouTube upload info.txt`** — suggested title, description, hashtags, and timing note.
+- **`Keep the Fire Burning - Lyric Visualizer.mp4`** — 3840×2160 (4K), 30 fps H.264/AAC export; lyric/title type is rendered at full output resolution.
+- **`YouTube Thumbnail.jpg`** — 1280×720 title-frame thumbnail.
+- **`YouTube upload info.txt`** — suggested upload title, description, and notes.
 - **`lyrics/Keep the Fire Burning.txt`** — clean lyrics transcript.
-- **`lyrics/Keep the Fire Burning.srt`** — subtitles used as the video's on-screen lyric cues.
-- **`lyrics/Keep the Fire Burning.lrc`** — timestamped lyrics for compatible music players.
-- **`visualizer/`** — self-contained WebGL visualizer with playback controls, cinematic photo transitions, and large centered lyrics.
-- **`assets/`** — cinematic stills plus locally bundled Cormorant Garamond display fonts (SIL Open Font License).
-- **`scripts/render_lyric_video.py`** — reproducible video renderer.
+- **`lyrics/Keep the Fire Burning.srt`** and **`.lrc`** — lyric subtitle/timecode sidecars.
+- **`visualizer/`** — self-contained WebGL player with audio-reactive ribbons, scene transitions, title, and centered lyrics.
+- **`assets/`** — no-human celestial, Lahore-sky, and moonlit-garden art; local Allura and Cormorant Garamond fonts with their OFL licenses.
+- **`scripts/render_lyric_video.py`** — reproducible 4K renderer with audio feature analysis for ribbons, ripples, and particles.
+
+The video itself contains only the song title during the opening, then one or two supplied lyric lines at a time; it contains no people, labels, credits, or added captions. It fades to black at the end.
 
 ## Preview the interactive visualizer
 
-From the repository root, start a small static web server:
+From the repository root:
 
 ```sh
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000/visualizer/`. Press play to hear the included MP3 and see the WebGL scene react to the audio. (Browsers generally block audio playback when opening the HTML directly as a `file://` URL.)
+Open `http://localhost:8000/visualizer/` and press play.
 
-## Re-render the MP4
+## Re-render
 
-Python 3.10+ is recommended. Install the renderer's dependencies in a virtual environment, then run:
+Python 3.10+ is recommended:
 
 ```sh
 python3 -m venv .venv
@@ -35,4 +36,4 @@ pip install -r scripts/requirements.txt
 python scripts/render_lyric_video.py
 ```
 
-The renderer reads the MP3 in the repository root and regenerates the MP4 plus the SRT/LRC lyric files. The lyric placements in the MP4 and timecoded files are **estimated from the supplied song structure**, not verified against a vocal stem; adjust the timestamps in `scripts/render_lyric_video.py` if frame-accurate karaoke timing is needed.
+The renderer analyzes the original audio for amplitude, spectral onsets, low-band pulses, and a violin-range pitch contour; these drive the animated lighting and ribbons. **Lyric cue times are still provisional phrase-level cues, not forced-aligned word timestamps.** This environment has no speech-alignment model, so the exact sung-word timing must be supplied or verified before claiming karaoke-level synchronization.
