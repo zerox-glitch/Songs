@@ -30,10 +30,10 @@
     [204,210.5,'I carry every promise that we ever made!'],[210.5,217,'A quiet kind of love that never fades!'],
     [217,220.5,'Aaaahhh huh haaaa!'],[220.5,222.5,'Laaa la la laaaa!'],[222.5,224.832,'Come back home...']
   ];
-  const sceneTimeline=[[0,'celestial-ocean.jpg'],[12,'two-skies.jpg'],[43,'celestial-ocean.jpg'],[87,'moonlit-garden.jpg'],[122,'celestial-ocean.jpg'],[217,'celestial-ocean.jpg']];
+  const sceneTimeline=[[0,'title-cosmic.jpg'],[12,'lyric-lahore-panorama.jpg'],[43,'celestial-ocean.jpg'],[55,'chorus-golden-infinity.jpg'],[87,'moonlit-garden.jpg'],[122,'celestial-ocean.jpg'],[135,'chorus-golden-infinity.jpg'],[170,'celestial-ocean.jpg'],[190,'chorus-golden-infinity.jpg'],[217,'celestial-ocean.jpg']];
   const photoA=document.querySelector('#photo-a'),photoB=document.querySelector('#photo-b');
   let currentPhoto=photoA,nextPhoto=photoB,activeScene=0,activeLyric=-2;
-  photoA.style.backgroundImage="url('../assets/celestial-ocean.jpg')";
+  photoA.style.backgroundImage="url('../assets/title-cosmic.jpg')";
   sceneTimeline.forEach(([,name])=>{const img=new Image();img.src=`../assets/${name}`;});
   function updateScene(){
     const t=audio.currentTime;let scene=0;

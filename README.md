@@ -10,7 +10,7 @@ A cinematic lyric film, a matching interactive visualizer, and upload assets for
 - **`lyrics/Keep the Fire Burning.txt`** — clean lyrics transcript.
 - **`lyrics/Keep the Fire Burning.srt`** and **`.lrc`** — lyric subtitle/timecode sidecars.
 - **`visualizer/`** — self-contained WebGL player with audio-reactive ribbons, scene transitions, title, and centered lyrics.
-- **`assets/`** — no-human celestial, Lahore-sky, and moonlit-garden art; local Allura and Cormorant Garamond fonts with their OFL licenses.
+- **`assets/`** — new no-human cosmic title, dual-horizon Lahore, gold-cloud infinity, and moonlit-garden scenes; local Allura and Cormorant Garamond fonts with their OFL licenses.
 - **`scripts/render_lyric_video.py`** — reproducible 4K renderer with audio feature analysis for ribbons, ripples, and particles.
 
 The video itself contains only the song title during the opening, then one or two supplied lyric lines at a time; it contains no people, labels, credits, or added captions. It fades to black at the end.

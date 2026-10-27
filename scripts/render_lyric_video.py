@@ -10,7 +10,7 @@ from pathlib import Path
 
 import imageio_ffmpeg
 import numpy as np
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIO = ROOT / "Keep the Fire Burning (Remastered).mp3"
@@ -64,19 +64,43 @@ LINES = [
 
 # No people or silhouettes; scenes follow the broad musical arc.
 SCENES = [
-    (0.0, "celestial-ocean.jpg", "title"),
-    (12.0, "two-skies.jpg", "verse"),
+    (0.0, "title-cosmic.jpg", "title"),
+    (12.0, "lyric-lahore-panorama.jpg", "verse"),
     (43.0, "celestial-ocean.jpg", "pre"),
-    (55.0, "celestial-ocean.jpg", "chorus"),
+    (55.0, "chorus-golden-infinity.jpg", "chorus"),
     (87.0, "moonlit-garden.jpg", "verse2"),
     (122.0, "celestial-ocean.jpg", "pre"),
-    (135.0, "celestial-ocean.jpg", "chorus"),
+    (135.0, "chorus-golden-infinity.jpg", "chorus"),
     (170.0, "celestial-ocean.jpg", "bridge"),
-    (190.0, "celestial-ocean.jpg", "final"),
+    (190.0, "chorus-golden-infinity.jpg", "final"),
     (217.0, "celestial-ocean.jpg", "outro"),
 ]
 FONT_SERIF = ROOT / "assets/fonts/CormorantGaramond-SemiBold.ttf"
 FONT_SCRIPT = ROOT / "assets/fonts/Allura-Regular.ttf"
+# Each row stays verbatim, while one emotional phrase is set in gold calligraphy.
+EMPHASIS = {
+    "The morning light is breaking in Lahore,": ("The morning light", "is breaking in Lahore,"),
+    "While midnight settles on your distant shore.": ("While midnight settles", "on your distant shore."),
+    "I know you're pulling down the window blinds,": ("I know you're pulling down", "the window blinds,"),
+    "And leaving all the heavy day behind.": ("And leaving all the", "heavy day behind."),
+    "I trace the little pixels on the screen,": ("I trace the little", "pixels on the screen,"),
+    "The most beautiful face I've ever seen.": ("The most beautiful", "face I've ever seen."),
+    "A half a world away, a different sky...": ("A half a world away,", "a different sky..."),
+    "But I can hear the softness in your sigh...": ("But I can hear the", "softness in your sigh..."),
+    "I will keep the fire burning till you come back home!": ("I WILL KEEP THE FIRE BURNING", "TILL YOU COME BACK HOME!"),
+    "You never have to walk this heavy road alone!": ("YOU NEVER HAVE TO WALK THIS", "HEAVY ROAD ALONE!"),
+    "I carry every promise that we ever made!": ("I CARRY EVERY PROMISE", "THAT WE EVER MADE!"),
+    "A quiet kind of love that never fades!": ("A QUIET KIND OF LOVE", "THAT NEVER FADES!"),
+    "I leave the phone right next to me in bed,": ("I leave the phone right", "next to me in bed,"),
+    "Just so I can hear you breathing deep.": ("Just so I can hear you", "breathing deep."),
+    "It closes up the thousands of miles,": ("It closes up the", "thousands of miles,"),
+    "To know I'm right beside you when you sleep.": ("To know I'm right beside", "you when you sleep."),
+    "We share the day and pass the sun along,": ("We share the day and", "pass the sun along,"),
+    "You are the only place where I belong.": ("You are the only place", "where I belong."),
+    "I don't need a crowded room or fancy things...": ("I don't need a crowded room", "or fancy things..."),
+    "I only need the peace your voice brings...": ("I only need the", "peace your voice brings..."),
+}
+VOCALISES = {"Aaaahhh huh haaaa!", "Laaa la la laaaa!", "Come back home..."}
 
 
 def ass_time(seconds: float) -> str:
@@ -116,6 +140,13 @@ def wrap_balanced(text: str, fnt: ImageFont.FreeTypeFont, max_width: int) -> lis
     return rows
 
 
+def font_size_to_fit(text: str, font_path: Path, start: int, max_width: int = 2860, min_size: int = 170) -> int:
+    size = start
+    while size > min_size and ImageFont.truetype(str(font_path), size).getlength(text) > max_width:
+        size -= 8
+    return size
+
+
 def write_subtitles() -> None:
     srt = []
     for i, (start, end, lyric) in enumerate(LINES, 1):
@@ -141,24 +172,27 @@ def write_subtitles() -> None:
     for start, end, text in LINES:
         chorus = any(a <= start < b for a,b in ((56,87),(135,170),(191,222.5)))
         bridge = 174 <= start < 190
-        vocalise = text.startswith(("Aaa", "Laaa"))
-        size = 300 if chorus else (275 if bridge else (290 if vocalise else 360))
-        fnt = ImageFont.truetype(str(FONT_SERIF), size)
-        rows = wrap_balanced(text, fnt, 3000)
-        while len(rows) > 2 and size > 220:
-            size -= 10
-            fnt = ImageFont.truetype(str(FONT_SERIF), size)
-            rows = wrap_balanced(text, fnt, 3000)
-        if start == 13.0:
-            rows = ["The morning light", "is breaking in Lahore,"]
-            escaped = ("{\\fnAllura\\fs450\\1c&H0038DFFF&\\bord1}The morning light"
-                       "\\N{\\rLyrics\\fs360}is breaking in Lahore,")
+        if text in VOCALISES:
+            size = font_size_to_fit(text, FONT_SCRIPT, 470, 3000)
+            escaped = f"{{\\fnAllura\\fs{size}\\1c&H0038DFFF&\\bord2\\shad8}}{text}"
         else:
-            escaped = "\\N".join(rows).replace("{", "\\{").replace("}", "\\}")
-        gold = "\\1c&H00A1D7F4&" if chorus else ""
-        italic = "\\i1" if bridge or vocalise else ""
-        tags = (f"{{\\an5\\pos(1920,1080)\\fs{size}{gold}{italic}\\blur2.2\\bord5\\shad8"
-                f"\\fad(420,420)\\t(0,400,\\blur0.25)}}")
+            plain, script = EMPHASIS[text]
+            if start != 13.0 and chorus:
+                plain, script = plain.upper(), script.upper()
+            normal_start = 330 if chorus else (300 if bridge else 360)
+            script_start = 340 if chorus else (320 if bridge else 350)
+            normal_size = font_size_to_fit(plain, FONT_SERIF, normal_start, 2860)
+            script_size = 450 if start == 13.0 else font_size_to_fit(script, FONT_SCRIPT, script_start, 2860)
+            if start == 13.0:
+                escaped = (f"{{\\fnAllura\\fs{script_size}\\1c&H0038DFFF&\\bord2\\shad8}}{plain}"
+                           f"\\N{{\\rLyrics\\fs{normal_size}}}{script}")
+            else:
+                escaped = (f"{{\\rLyrics\\fs{normal_size}}}{plain}"
+                           f"\\N{{\\fnAllura\\fs{script_size}\\1c&H0038DFFF&\\bord2\\shad8}}{script}")
+        if bridge:
+            escaped = "{\\i1}" + escaped
+        tags = (f"{{\\an5\\pos(1920,1080)\\blur2.0\\bord5\\shad8"
+                f"\\fad(420,420)\\t(0,400,\\blur0.2)}}")
         ass.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Lyrics,,0,0,0,,{tags}{escaped}")
     ASS_PATH.write_text("\n".join(ass)+"\n", encoding="utf-8")
 
@@ -169,8 +203,8 @@ def load_scenes() -> dict[str, Image.Image]:
         if name not in photos:
             image = Image.open(ROOT / "assets" / name).convert("RGB")
             image = ImageOps.fit(image, (WIDTH, HEIGHT), method=Image.Resampling.LANCZOS, centering=(.5,.48))
-            image = ImageEnhance.Color(image).enhance(.90)
-            image = ImageEnhance.Contrast(image).enhance(1.04)
+            image = ImageEnhance.Color(image).enhance(1.10)
+            image = ImageEnhance.Contrast(image).enhance(1.07)
             photos[name] = image
     return photos
 
@@ -252,64 +286,72 @@ def main() -> None:
         encoder=subprocess.Popen(cmd,stdin=subprocess.PIPE)
         # Fixed blue-noise-like point layout: positions are deterministic; brightness is audio-driven.
         dust=[((i*379+53)%WIDTH,(i*197+41)%HEIGHT,(i*2.399963229728653)%(2*math.pi),1+i%3) for i in range(84)]
+        cached_background = None
+        cached_mode = None
         for frame in range(total_frames):
             t=frame/FPS; level=float(features["rms"][frame]); low=float(features["low"][frame])
             mid=float(features["mid"][frame]); high=float(features["high"][frame]); onset=float(features["onset"][frame]); pitch=float(features["pitch"][frame])
-            photo,mode=scene_at(t,photos)
-            rgba=Image.alpha_composite(photo.convert("RGBA"),grade)
-            glow=Image.new("RGBA",(WIDTH,HEIGHT),(0,0,0,0));gd=ImageDraw.Draw(glow,"RGBA");draw=ImageDraw.Draw(rgba,"RGBA")
+            # Camera drift is refreshed at 15 fps; audio-driven light still updates every output frame.
+            if cached_background is None or frame % 2 == 0:
+                photo, cached_mode = scene_at(t,photos)
+                cached_background=Image.alpha_composite(photo.convert("RGBA"),grade)
+            mode=cached_mode
+            rgba=cached_background.copy()
+            effects=Image.new("RGBA",(WIDTH,HEIGHT),(0,0,0,0))
+            draw=ImageDraw.Draw(effects,"RGBA")
 
-            # Violin-led liquid-gold string: pitch moves the arc; measured band energy drives its bloom.
+            # Violin-led silk ribbon: the tracked pitch lifts or lowers the curve while its measured band blooms.
             pitch_y=194-pitch*86; ribbon=[]
             for j in range(180):
                 x=-12+j*7.3; u=j/179; envelope=math.sin(math.pi*u)**.45
                 y=pitch_y+envelope*((17+62*mid)*math.sin(u*9.5-t*1.5))+9*math.sin(u*23+t*.72)
                 ribbon.append((x,y))
             if mode!="bridge":
-                gd.line(ribbon,fill=(238,174,87,24+int(38*mid)),width=11+int(24*mid))
-                rgba=Image.alpha_composite(rgba,glow.filter(ImageFilter.GaussianBlur(12)));draw=ImageDraw.Draw(rgba,"RGBA")
-                draw.line(ribbon,fill=(246,211,155,42+int(95*mid)),width=2)
+                draw.line(ribbon,fill=(238,174,87,18+int(28*mid)),width=14)
+                draw.line(ribbon,fill=(255,229,184,38+int(72*mid)),width=2)
             else:
                 strand=[(x,472+7*math.sin(x*.011-t*.25)) for x in range(-20,WIDTH+20,8)]
-                draw.line(strand,fill=(244,205,146,70+int(60*mid)),width=2)
+                draw.line(strand,fill=(244,205,146,42+int(55*mid)),width=2)
 
-            # Low-band pulses create soft lake ripples. Bridge stays nearly still.
+            # Measured low-band pulses ripple through the lake beneath the centered lyric-safe area.
             if mode not in ("title","bridge","outro"):
-                cx,cy=WIDTH//2,515
+                cx,cy=WIDTH//2,565
                 for ring in range(3):
-                    radius=22+ring*34+28*low;alpha=int((18+42*low)*(1 if ring==0 else .55))
-                    draw.ellipse((cx-radius*1.9,cy-radius*.44,cx+radius*1.9,cy+radius*.44),outline=(239,191,121,alpha),width=2)
+                    radius=14+ring*32+24*low
+                    alpha=int((18+45*low)*(1 if ring==0 else .55))
+                    draw.ellipse((cx-radius*1.9,cy-radius*.38,cx+radius*1.9,cy+radius*.38),
+                                 outline=(239,191,121,alpha),width=2)
 
-            # Chorus infinity, gently expanding with the measured low/mid-band energy.
+            # The chorus infinity breathes with measured energy; positioned above lyrics for clean readability.
             if mode in ("chorus","final"):
-                energy=min(1,.28*low+.45*mid+.27*level);rx,ry=365+48*energy,156+28*energy;loop=[]
+                energy=min(1,.28*low+.45*mid+.27*level)
+                rx,ry=365+45*energy,92+18*energy;loop=[]
                 for j in range(720):
                     a=2*math.pi*j/719;den=1+math.sin(a)**2
-                    loop.append((WIDTH/2+rx*math.cos(a)/den,HEIGHT/2+ry*math.sin(a)*math.cos(a)/den))
-                aura=Image.new("RGBA",(WIDTH,HEIGHT),(0,0,0,0))
-                ImageDraw.Draw(aura,"RGBA").line(loop,fill=(236,170,78,int(22+24*energy)),width=15)
-                rgba=Image.alpha_composite(rgba,aura.filter(ImageFilter.GaussianBlur(12)));draw=ImageDraw.Draw(rgba,"RGBA")
-                draw.line(loop,fill=(245,202,133,int(34+65*energy)),width=2)
+                    loop.append((WIDTH/2+rx*math.cos(a)/den,190+ry*math.sin(a)*math.cos(a)/den))
+                draw.line(loop,fill=(236,170,78,16+int(12*energy)),width=13)
+                draw.line(loop,fill=(255,218,153,35+int(28*energy)),width=2)
 
-            # Sparkles are spatially deterministic and respond to detected onsets / high-frequency energy.
+            # Fixed dust positions; measured onset/high-band energy determines glow and scale.
             if mode not in ("bridge","outro"):
                 for i,(px,py,phase,base_r) in enumerate(dust):
-                    if 185<px<WIDTH-185 and 242<py<465: continue
+                    if mode!="title" and 185<px<WIDTH-185 and 242<py<465: continue
                     if mode=="title":
                         attract=min(1,t/4);px=px*(1-attract*.35)+WIDTH*.5*(attract*.35);py=py*(1-attract*.24)+HEIGHT*.48*(attract*.24)
                     xx=(px+10*math.sin(t*.18+phase))%WIDTH;yy=(py-8*math.sin(t*.14+phase))%HEIGHT
-                    alpha=int(min(145,12+96*onset+32*high));radius=base_r+.4+1.4*onset
+                    alpha=int(min(135,8+70*onset+35*high));radius=base_r+.3+1.2*onset
                     draw.ellipse((xx-radius,yy-radius,xx+radius,yy+radius),fill=(255,218,159,alpha))
 
-            # Delicate continuous vocal trace, tucked beneath the central lyric-safe zone.
+            # Fine vocal waveform is a single continuous filament, never a bar spectrum.
             if mode not in ("title","bridge","outro"):
                 wave=[]
                 for j in range(180):
                     u=j/179;x=74+u*(WIDTH-148);env=math.sin(math.pi*u)**.55
                     y=633+env*(8+33*mid)*math.sin(u*18-t*2.3)+env*(3+8*high)*math.sin(u*43-t*1.7)
                     wave.append((x,y))
-                draw.line(wave,fill=(247,215,170,28+int(94*mid)),width=2)
+                draw.line(wave,fill=(247,215,170,24+int(76*mid)),width=2)
 
+            rgba=Image.alpha_composite(rgba,effects)
             # Fade to true black at the very end, with no added tail.
             if t>220:
                 fade=min(1,(t-220)/4.832)
